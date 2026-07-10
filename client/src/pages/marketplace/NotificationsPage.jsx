@@ -12,6 +12,12 @@ const MOCK_NOTIFICATIONS = [
 
 const NotificationsPage = () => {
   const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
+  const [expandedId, setExpandedId] = useState(null);
+
+  const toggleExpand = (id) => {
+    setExpandedId(expandedId === id ? null : id);
+    setNotifications((prev) => prev.map((n) => n.id === id ? { ...n, read: true } : n));
+  };
 
   const markAllRead = () => setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
   const clearAll = () => setNotifications([]);
@@ -51,19 +57,25 @@ const NotificationsPage = () => {
         <div className="space-y-2">
           {notifications.map((n) => {
             const Icon = n.icon;
+            const isExpanded = expandedId === n.id;
             return (
-              <div key={n.id} className={`rounded-2xl p-4 border transition-colors ${n.read ? 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700' : 'bg-indigo-50 dark:bg-indigo-900/10 border-indigo-100 dark:border-indigo-800'}`}>
+              <div key={n.id} onClick={() => toggleExpand(n.id)} className={`rounded-2xl p-4 border transition-colors cursor-pointer ${n.read && !isExpanded ? 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700' : 'bg-indigo-50 dark:bg-indigo-900/10 border-indigo-100 dark:border-indigo-800'}`}>
                 <div className="flex items-start gap-3">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${n.read ? 'bg-gray-100 dark:bg-gray-700 text-gray-400' : 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600'}`}>
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${n.read && !isExpanded ? 'bg-gray-100 dark:bg-gray-700 text-gray-400' : 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600'}`}>
                     <Icon size={18} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between">
                       <div>
-                        <p className={`text-sm ${n.read ? 'text-gray-700 dark:text-gray-300' : 'text-gray-900 dark:text-white font-semibold'}`}>{n.title}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{n.desc}</p>
+                        <p className={`text-sm ${n.read && !isExpanded ? 'text-gray-700 dark:text-gray-300' : 'text-gray-900 dark:text-white font-semibold'}`}>{n.title}</p>
+                        <p className={`text-xs mt-0.5 ${isExpanded ? 'text-gray-700 dark:text-gray-200' : 'text-gray-500 dark:text-gray-400 line-clamp-1'}`}>{n.desc}</p>
+                        {isExpanded && (
+                          <div className="mt-3 pt-3 border-t border-indigo-200 dark:border-indigo-700">
+                            <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">{n.desc}</p>
+                          </div>
+                        )}
                       </div>
-                      {!n.read && <div className="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0 mt-1.5" />}
+                      {!n.read && !isExpanded && <div className="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0 mt-1.5" />}
                     </div>
                     <p className="text-xs text-gray-400 mt-1.5">{n.time}</p>
                   </div>
