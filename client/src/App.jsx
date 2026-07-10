@@ -44,6 +44,10 @@ import LeaseList from './pages/leases/LeaseList';
 import PaymentList from './pages/payments/PaymentList';
 import MaintenanceList from './pages/maintenance/MaintenanceList';
 import Reports from './pages/reports/Reports';
+import Users from './pages/admin/Users';
+import Subscriptions from './pages/admin/Subscriptions';
+import Analytics from './pages/admin/Analytics';
+import AuditLogs from './pages/admin/AuditLogs';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 
@@ -72,6 +76,10 @@ function App() {
                 {/* SUPER_ADMIN dashboard */}
                 <Route element={<ProtectedRoute><RoleGuard roles={['SUPER_ADMIN']}><DashboardLayout /></RoleGuard></ProtectedRoute>}>
                   <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                  <Route path="/users" element={<Users />} />
+                  <Route path="/subscriptions" element={<Subscriptions />} />
+                  <Route path="/analytics" element={<Analytics />} />
+                  <Route path="/audit-logs" element={<AuditLogs />} />
                 </Route>
 
                 {/* COMPANY_OWNER dashboard */}
