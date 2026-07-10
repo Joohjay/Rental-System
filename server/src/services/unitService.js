@@ -60,4 +60,16 @@ const remove = async (id, companyId) => {
   await unitRepository.remove(id);
 };
 
-module.exports = { list, getById, create, update, remove };
+const listAll = async (companyId, query) => {
+  const { status, search, page = 1, limit = 20 } = query;
+  const filters = { status, search, page: Number(page), limit: Number(limit) };
+
+  const [data, total] = await Promise.all([
+    unitRepository.findAllByCompany(companyId, filters),
+    unitRepository.countAllByCompany(companyId, filters),
+  ]);
+
+  return { data, total, page: Number(page), limit: Number(limit) };
+};
+
+module.exports = { list, listAll, getById, create, update, remove };

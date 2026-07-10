@@ -3,7 +3,7 @@ const unitService = require('../services/unitService');
 const list = async (req, res, next) => {
   try {
     const result = await unitService.list(req.params.buildingId, req.user.company_id, req.query);
-    res.json({ success: true, ...result });
+    res.json({ success: true, data: result.data, pagination: { total: result.total, page: result.page, limit: result.limit } });
   } catch (err) {
     next(err);
   }
@@ -20,7 +20,7 @@ const getById = async (req, res, next) => {
 
 const create = async (req, res, next) => {
   try {
-    const unit = await unitService.create({ ...req.body, building_id: req.params.buildingId }, req.user.company_id);
+    const unit = await unitService.create({ ...req.body, building_id: req.params.buildingId || req.body.building_id }, req.user.company_id);
     res.status(201).json({ success: true, message: 'Unit created', data: unit });
   } catch (err) {
     next(err);
@@ -45,4 +45,13 @@ const remove = async (req, res, next) => {
   }
 };
 
-module.exports = { list, getById, create, update, remove };
+const listAll = async (req, res, next) => {
+  try {
+    const result = await unitService.listAll(req.user.company_id, req.query);
+    res.json({ success: true, data: result.data, pagination: { total: result.total, page: result.page, limit: result.limit } });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { list, listAll, getById, create, update, remove };

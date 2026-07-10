@@ -2,8 +2,8 @@ const companyService = require('../services/companyService');
 
 const list = async (req, res, next) => {
   try {
-    const companies = await companyService.list();
-    res.json({ success: true, data: companies });
+    const result = await companyService.list(req.query);
+    res.json({ success: true, data: result.data, pagination: { total: result.total, page: result.page, limit: result.limit } });
   } catch (err) {
     next(err);
   }

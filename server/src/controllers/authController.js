@@ -1,11 +1,18 @@
 const authService = require('../services/authService');
 
-const register = async (req, res, next) => {
+const registerApplicant = async (req, res, next) => {
   try {
-    const { name, email, phone, password, role } = req.body;
-    const data = await authService.registerUser({ name, email, phone, password, role });
-
+    const data = await authService.registerApplicant(req.body);
     res.status(201).json({ success: true, message: 'Registration successful', ...data });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const registerCompanyOwner = async (req, res, next) => {
+  try {
+    const data = await authService.registerCompanyOwner(req.body);
+    res.status(201).json({ success: true, message: 'Company created successfully', ...data });
   } catch (err) {
     next(err);
   }
@@ -36,4 +43,4 @@ const logout = async (req, res) => {
   res.json({ success: true, message: 'Logged out successfully' });
 };
 
-module.exports = { register, login, getMe, logout };
+module.exports = { registerApplicant, registerCompanyOwner, login, getMe, logout };

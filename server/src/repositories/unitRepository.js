@@ -65,7 +65,7 @@ const create = async (data) => {
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       data.building_id,
-      data.unit_number,
+      data.unit_number || data.name,
       data.unit_type || 'studio',
       data.floor || 1,
       data.rent_amount,
@@ -83,7 +83,7 @@ const update = async (id, data) => {
   const fields = [];
   const values = [];
 
-  const allowed = ['unit_number', 'unit_type', 'floor', 'rent_amount', 'deposit_amount',
+  const allowed = ['unit_number', 'name', 'unit_type', 'floor', 'rent_amount', 'deposit_amount',
     'size_sqm', 'bedrooms', 'bathrooms', 'status'];
 
   for (const field of allowed) {
@@ -104,4 +104,55 @@ const remove = async (id) => {
   await pool.query('UPDATE units SET deleted_at = NOW() WHERE id = ?', [id]);
 };
 
-module.exports = { findAll, countAll, findById, create, update, remove };
+const findAllByCompany = async (companyId, filters = {}) => {
+  let sql = `
+    SELECT u.*, b.name AS building_name
+    FROM units u
+    JOIN buildings b ON u.building_id = b.id
+    JOIN properties p ON b.property_id = p.id
+    WHERE p.company_id = ? AND u.deleted_at IS NULL AND b.deleted_at IS NULL AND p.deleted_at IS NULL
+  `;
+  const params = [companyId];
+
+  if (filters.status) {
+    sql += ' AND u.status = ?';
+    params.push(filters.status);
+  }
+
+  if (filters.search) {
+    sql += ' AND u.unit_number LIKE ?';
+    params.push(`%${filters.search}%`);
+  }
+
+  sql += ' ORDER BY u.created_at DESC';
+
+  if (filters.page && filters.limit) {
+    const offset = (filters.page - 1) * filters.limit;
+    sql += ' LIMIT ? OFFSET ?';
+    params.push(Number(filters.limit), offset);
+  }
+
+  const [rows] = await pool.query(sql, params);
+  return rows;
+};
+
+const countAllByCompany = async (companyId, filters = {}) => {
+  let sql = `
+    SELECT COUNT(*) AS total
+    FROM units u
+    JOIN buildings b ON u.building_id = b.id
+    JOIN properties p ON b.property_id = p.id
+    WHERE p.company_id = ? AND u.deleted_at IS NULL AND b.deleted_at IS NULL AND p.deleted_at IS NULL
+  `;
+  const params = [companyId];
+
+  if (filters.status) {
+    sql += ' AND u.status = ?';
+    params.push(filters.status);
+  }
+
+  const [rows] = await pool.query(sql, params);
+  return rows[0].total;
+};
+
+module.exports = { findAll, countAll, findAllByCompany, countAllByCompany, findById, create, update, remove };

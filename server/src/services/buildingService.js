@@ -10,6 +10,18 @@ const list = async (propertyId, companyId) => {
   return buildingRepository.findAll(propertyId);
 };
 
+const listAll = async (companyId, query) => {
+  const { search, property_id, page = 1, limit = 20 } = query;
+  const filters = { search, property_id, page: Number(page), limit: Number(limit) };
+
+  const [data, total] = await Promise.all([
+    buildingRepository.findAllByCompany(companyId, filters),
+    buildingRepository.countAllByCompany(companyId, filters),
+  ]);
+
+  return { data, total, page: Number(page), limit: Number(limit) };
+};
+
 const getById = async (id, companyId) => {
   const building = await buildingRepository.findById(id);
   if (!building) throw new AppError('Building not found', 404);
@@ -40,4 +52,4 @@ const remove = async (id, companyId) => {
   await buildingRepository.remove(id);
 };
 
-module.exports = { list, getById, create, update, remove };
+module.exports = { list, listAll, getById, create, update, remove };

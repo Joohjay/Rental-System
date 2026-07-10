@@ -3,7 +3,7 @@ const propertyService = require('../services/propertyService');
 const list = async (req, res, next) => {
   try {
     const result = await propertyService.list(req.user.company_id, req.query);
-    res.json({ success: true, ...result });
+    res.json({ success: true, data: result.data, pagination: { total: result.total, page: result.page, limit: result.limit } });
   } catch (err) {
     next(err);
   }

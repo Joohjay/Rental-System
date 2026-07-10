@@ -8,6 +8,56 @@ const findAll = async (propertyId) => {
   return rows;
 };
 
+const findAllByCompany = async (companyId, filters = {}) => {
+  let sql = `
+    SELECT b.*, p.name AS property_name,
+      (SELECT COUNT(*) FROM units u WHERE u.building_id = b.id AND u.deleted_at IS NULL) AS units_count
+    FROM buildings b
+    JOIN properties p ON b.property_id = p.id
+    WHERE p.company_id = ? AND b.deleted_at IS NULL AND p.deleted_at IS NULL
+  `;
+  const params = [companyId];
+
+  if (filters.search) {
+    sql += ' AND b.name LIKE ?';
+    params.push(`%${filters.search}%`);
+  }
+
+  if (filters.property_id) {
+    sql += ' AND b.property_id = ?';
+    params.push(filters.property_id);
+  }
+
+  sql += ' ORDER BY b.name ASC';
+
+  if (filters.page && filters.limit) {
+    const offset = (filters.page - 1) * filters.limit;
+    sql += ' LIMIT ? OFFSET ?';
+    params.push(Number(filters.limit), offset);
+  }
+
+  const [rows] = await pool.query(sql, params);
+  return rows;
+};
+
+const countAllByCompany = async (companyId, filters = {}) => {
+  let sql = `
+    SELECT COUNT(*) AS total
+    FROM buildings b
+    JOIN properties p ON b.property_id = p.id
+    WHERE p.company_id = ? AND b.deleted_at IS NULL AND p.deleted_at IS NULL
+  `;
+  const params = [companyId];
+
+  if (filters.property_id) {
+    sql += ' AND b.property_id = ?';
+    params.push(filters.property_id);
+  }
+
+  const [rows] = await pool.query(sql, params);
+  return rows[0].total;
+};
+
 const findById = async (id) => {
   const [rows] = await pool.query('SELECT * FROM buildings WHERE id = ? AND deleted_at IS NULL', [id]);
   return rows[0] || null;
@@ -52,4 +102,4 @@ const remove = async (id) => {
   await pool.query('UPDATE buildings SET deleted_at = NOW() WHERE id = ?', [id]);
 };
 
-module.exports = { findAll, findById, create, update, remove };
+module.exports = { findAll, findAllByCompany, countAllByCompany, findById, create, update, remove };

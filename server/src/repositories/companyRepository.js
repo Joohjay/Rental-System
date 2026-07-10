@@ -1,10 +1,51 @@
 const pool = require('../config/db');
 
-const findAll = async () => {
-  const [rows] = await pool.query(
-    'SELECT * FROM companies WHERE is_active = 1 ORDER BY name ASC'
-  );
+const findAll = async (filters = {}) => {
+  let sql = 'SELECT * FROM companies WHERE 1=1';
+  const params = [];
+
+  if (filters.is_active !== undefined) {
+    sql += ' AND is_active = ?';
+    params.push(filters.is_active);
+  }
+
+  if (filters.search) {
+    sql += ' AND (name LIKE ? OR email LIKE ?)';
+    const q = `%${filters.search}%`;
+    params.push(q, q);
+  }
+
+  const sortBy = filters.sortBy || 'created_at';
+  const sortDir = filters.sortDirection === 'asc' ? 'ASC' : 'DESC';
+  sql += ` ORDER BY ${sortBy} ${sortDir}`;
+
+  if (filters.page && filters.limit) {
+    const offset = (filters.page - 1) * filters.limit;
+    sql += ' LIMIT ? OFFSET ?';
+    params.push(Number(filters.limit), offset);
+  }
+
+  const [rows] = await pool.query(sql, params);
   return rows;
+};
+
+const countAll = async (filters = {}) => {
+  let sql = 'SELECT COUNT(*) AS total FROM companies WHERE 1=1';
+  const params = [];
+
+  if (filters.is_active !== undefined) {
+    sql += ' AND is_active = ?';
+    params.push(filters.is_active);
+  }
+
+  if (filters.search) {
+    sql += ' AND (name LIKE ? OR email LIKE ?)';
+    const q = `%${filters.search}%`;
+    params.push(q, q);
+  }
+
+  const [rows] = await pool.query(sql, params);
+  return rows[0].total;
 };
 
 const findById = async (id) => {
@@ -65,4 +106,4 @@ const remove = async (id) => {
   await pool.query('UPDATE companies SET is_active = 0 WHERE id = ?', [id]);
 };
 
-module.exports = { findAll, findById, findBySlug, create, update, remove };
+module.exports = { findAll, countAll, findById, findBySlug, create, update, remove };

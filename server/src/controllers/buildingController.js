@@ -20,7 +20,7 @@ const getById = async (req, res, next) => {
 
 const create = async (req, res, next) => {
   try {
-    const building = await buildingService.create({ ...req.body, property_id: req.params.propertyId }, req.user.company_id);
+    const building = await buildingService.create({ ...req.body, property_id: req.params.propertyId || req.body.property_id }, req.user.company_id);
     res.status(201).json({ success: true, message: 'Building created', data: building });
   } catch (err) {
     next(err);
@@ -45,4 +45,13 @@ const remove = async (req, res, next) => {
   }
 };
 
-module.exports = { list, getById, create, update, remove };
+const listAll = async (req, res, next) => {
+  try {
+    const result = await buildingService.listAll(req.user.company_id, req.query);
+    res.json({ success: true, data: result.data, pagination: { total: result.total, page: result.page, limit: result.limit } });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { list, listAll, getById, create, update, remove };

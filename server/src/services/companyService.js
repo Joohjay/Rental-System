@@ -5,8 +5,16 @@ const AppError = require('../utils/AppError');
 const slugify = (name) =>
   name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
-const list = async () => {
-  return companyRepository.findAll();
+const list = async (query = {}) => {
+  const { search, sortBy, sortDirection, page = 1, limit = 20 } = query;
+  const filters = { search, sortBy, sortDirection, page: Number(page), limit: Number(limit) };
+
+  const [data, total] = await Promise.all([
+    companyRepository.findAll(filters),
+    companyRepository.countAll(filters),
+  ]);
+
+  return { data, total, page: Number(page), limit: Number(limit) };
 };
 
 const getById = async (id) => {
