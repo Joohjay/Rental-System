@@ -43,6 +43,9 @@ import TenantList from './pages/tenants/TenantList';
 import LeaseList from './pages/leases/LeaseList';
 import PaymentList from './pages/payments/PaymentList';
 import MaintenanceList from './pages/maintenance/MaintenanceList';
+import StaffList from './pages/staff/StaffList';
+import StaffForm from './pages/staff/StaffForm';
+import ApplicantList from './pages/applicants/ApplicantList';
 import Reports from './pages/reports/Reports';
 import Users from './pages/admin/Users';
 import Subscriptions from './pages/admin/Subscriptions';
@@ -141,6 +144,10 @@ function App() {
                   <Route path="/payments" element={<PaymentList />} />
                   <Route path="/maintenance" element={<MaintenanceList />} />
                   <Route path="/reports" element={<Reports />} />
+                  <Route path="/staff" element={<StaffList />} />
+                  <Route path="/staff/new" element={<StaffForm />} />
+                  <Route path="/staff/:id/edit" element={<StaffForm />} />
+                  <Route path="/applicants" element={<ApplicantList />} />
                 </Route>
 
                 {/* Profile & Settings — any authenticated user */}

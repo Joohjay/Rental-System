@@ -13,6 +13,8 @@ const buildingRoutes = require('./routes/buildingRoutes');
 const unitRoutes = require('./routes/unitRoutes');
 const standaloneRoutes = require('./routes/standaloneRoutes');
 const marketplaceRoutes = require('./routes/marketplaceRoutes');
+const staffRoutes = require('./routes/staffRoutes');
+const applicantRoutes = require('./routes/applicantRoutes');
 
 const app = express();
 
@@ -31,6 +33,8 @@ app.use('/api/properties', propertyRoutes);
 app.use('/api/properties/:propertyId/buildings', buildingRoutes);
 app.use('/api/properties/:propertyId/buildings/:buildingId/units', unitRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
+app.use('/api/staff', staffRoutes);
+app.use('/api/applicants', applicantRoutes);
 app.use('/api', standaloneRoutes);
 
 app.use(errorHandler);
