@@ -30,8 +30,8 @@ app.use('/api/companies', companyRoutes);
 app.use('/api/properties', propertyRoutes);
 app.use('/api/properties/:propertyId/buildings', buildingRoutes);
 app.use('/api/properties/:propertyId/buildings/:buildingId/units', unitRoutes);
-app.use('/api', standaloneRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
+app.use('/api', standaloneRoutes);
 
 app.use(errorHandler);
 
